@@ -15,12 +15,11 @@ function isStandardMNI2mm(dims, voxelMM) {
 
 const MNI2MM = { x0: 90, y0: -126, z0: -72, vx: 2, vy: 2, vz: 2 };
 
-export function NiiViewer({ query }) {
+export function NiiViewer({ query, expanded = false }) {
   const [loadingBG, setLoadingBG] = useState(false)
   const [loadingMap, setLoadingMap] = useState(false)
   const [errBG, setErrBG] = useState('')
   const [errMap, setErrMap] = useState('')
-  const [zoomedView, setZoomedView] = useState(null) // { axis: 'x'|'y'|'z', index }
 
   // backend params
   const [voxel, setVoxel] = useState(2.0)
@@ -390,14 +389,20 @@ export function NiiViewer({ query }) {
   const nsInputCls = 'w-16 rounded border border-gray-400 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400'
   const nsLabelCls = 'mr-1 text-sm'
 
+  // Compact mode: smaller canvas size
+  // Expanded mode: larger canvas for better viewing
+  const canvasHeight = expanded ? '400px' : '220px'
+
   return (
     <div className='flex flex-col gap-3'>
-      <div className='flex items-center justify-between'>
-        <div className='card__title'>NIfTI Viewer</div>
-        <div className='flex items-center gap-2 text-sm text-gray-500'>
-          {query && <a href={mapUrl} className='rounded-lg border px-2 py-1 text-xs hover:bg-gray-50'>Download map</a>}
+      {!expanded && (
+        <div className='flex items-center justify-between'>
+          <div className='card__title'>NIfTI Viewer</div>
+          <div className='flex items-center gap-2 text-sm text-gray-500'>
+            {query && <a href={mapUrl} className='rounded-lg border px-2 py-1 text-xs hover:bg-gray-50'>Download map</a>}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
         <label className='flex items-center gap-2'>
@@ -481,25 +486,31 @@ export function NiiViewer({ query }) {
         </div>
       )}
 
-      {!!nx && !zoomedView && (
-        <div className='grid grid-cols-3 gap-3' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
+      {!!nx && (
+        <div 
+          className='grid gap-3' 
+          style={{ 
+            display: 'grid', 
+            gridTemplateColumns: expanded ? 'repeat(3, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))', 
+            gap: expanded ? 20 : 12 
+          }}
+        >
           {sliceConfigs.map(({ key, name, axisLabel, canvasRef }) => (
             <div key={key} className='flex flex-col gap-2'>
               <div className='text-xs text-gray-600 flex justify-between items-center'>
-                <span>{name} ({axisLabel})</span>
-                <button 
-                  onClick={() => setZoomedView({ axis: key })}
-                  className='text-xs px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600'
-                  style={{fontSize: '10px', padding: '4px 8px'}}
-                >
-                  🔍 Zoom
-                </button>
+                <span style={{ fontWeight: expanded ? '600' : '400', fontSize: expanded ? '14px' : '12px' }}>
+                  {name} ({axisLabel})
+                </span>
               </div>
               <canvas 
                 ref={canvasRef} 
                 className='w-full rounded-xl border cursor-crosshair' 
                 onClick={(e)=>onCanvasClick(e, key)} 
-                style={{ height: '280px', imageRendering: 'pixelated' }}
+                style={{ 
+                  height: canvasHeight, 
+                  imageRendering: 'pixelated',
+                  boxShadow: expanded ? '0 4px 12px rgba(0,0,0,0.1)' : 'none'
+                }}
               />
             </div>
           ))}
@@ -531,19 +542,38 @@ export function NiiViewer({ query }) {
         </div>
       )}
 
-      <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
-        <label className='flex flex-col'>Gaussian FWHM:
-          <input type='number' step='0.5' value={fwhm} onChange={e=>setFwhm(Number(e.target.value)||0)} className='w-28 rounded-lg border px-2 py-1'/>
-          <br />
-        </label>
-      </div>
+      {!!nx && !expanded && (
+        <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
+          <label className='flex flex-col'>Gaussian FWHM:
+            <input type='number' step='0.5' value={fwhm} onChange={e=>setFwhm(Number(e.target.value)||0)} className='w-28 rounded-lg border px-2 py-1'/>
+          </label>
+        </div>
+      )}
 
-      <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
-        <label className='flex items-center gap-2'>
-          <span>Overlay alpha: {overlayAlpha.toFixed(2)}</span>
-          <input type='range' min={0} max={1} step={0.05} value={overlayAlpha} onChange={e=>setOverlayAlpha(Number(e.target.value))} className='w-40' />
-        </label>
-      </div>
+      {expanded && (
+        <div className='grid grid-cols-2 gap-4'>
+          <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
+            <label className='flex flex-col'>Gaussian FWHM:
+              <input type='number' step='0.5' value={fwhm} onChange={e=>setFwhm(Number(e.target.value)||0)} className='w-28 rounded-lg border px-2 py-1'/>
+            </label>
+          </div>
+          <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
+            <label className='flex items-center gap-2'>
+              <span>Overlay alpha: {overlayAlpha.toFixed(2)}</span>
+              <input type='range' min={0} max={1} step={0.05} value={overlayAlpha} onChange={e=>setOverlayAlpha(Number(e.target.value))} className='w-40' />
+            </label>
+          </div>
+        </div>
+      )}
+
+      {!expanded && (
+        <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
+          <label className='flex items-center gap-2'>
+            <span>Overlay alpha: {overlayAlpha.toFixed(2)}</span>
+            <input type='range' min={0} max={1} step={0.05} value={overlayAlpha} onChange={e=>setOverlayAlpha(Number(e.target.value))} className='w-40' />
+          </label>
+        </div>
+      )}
     </div>
   )
 }
