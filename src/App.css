@@ -1,104 +1,455 @@
-
-/* App.css baseline (hoverless look is enforced inline in App.jsx too) */
+/* Morandi Color System */
 :root {
-  --bg: #fafafa;
-  --fg: #111827;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --radius: 14px;
-  --primary-600: #2563eb;
-  --btn-font-size: 12px;
-  --btn-py: 6px;
-  --btn-px: 10px;
-  --btn-radius: 8px;
+  --morandi-bg: #f5f3f0;
+  --morandi-card: #fefefe;
+  --morandi-primary: #8b9d9e;
+  --morandi-primary-hover: #7a8d8e;
+  --morandi-primary-light: rgba(139, 157, 158, 0.15);
+  --morandi-secondary: #b8a89a;
+  --morandi-accent: #9b8e82;
+  --morandi-border: #d9d4cf;
+  --morandi-text: #4a4a4a;
+  --morandi-text-muted: #8a8a8a;
+  --morandi-success: #9eb09e;
+  --morandi-warning: #c4b5a0;
+  --morandi-error: #b89b9b;
+  
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
+
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--morandi-bg);
+  color: var(--morandi-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-.app {
+/* App Layout */
+.app--morandi {
   max-width: none;
   margin: 0;
-  padding: 18px 0 18px 18px;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.app__header { margin-bottom: 14px; }
-.app__title { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: .2px; }
-.app__subtitle { margin-top: 4px; color: var(--muted); font-size: 13px; }
-
-.app__grid { display: flex; gap: 0; width: 100%; }
-.app__grid > .card { flex: 1 1 0; min-width: 240px; overflow: auto; }
-
-.resizer { width: 8px; cursor: col-resize; position: relative; user-select: none; touch-action: none; align-self: stretch; background: transparent; }
-.resizer::after { content:''; position:absolute; top:0; bottom:0; left:3px; width:2px; background: var(--border); transition: background .15s ease; }
-.resizer:hover::after { background: #9ca3af; }
-
-.card { background:white; border:1px solid var(--border); border-radius: var(--radius); padding:12px; }
-.card__title { font-weight:600; margin-bottom:10px; }
-.card--stack > .divider { height:1px; background:var(--border); margin:12px 0; }
-
-.hint { margin-top: 8px; color: var(--muted); font-size: 12px; }
-.hint__code { background:#f3f4f6; padding:2px 6px; border-radius:8px; }
-
-/* Downsized buttons (no hover/active change) */
-button, .btn, [role="button"], .button {
-  background: var(--primary-600);
-  color:#fff;
-  border:none;
-  border-radius: var(--btn-radius);
-  padding: var(--btn-py) var(--btn-px);
-  font-weight:600;
-  font-size: var(--btn-font-size);
-  line-height:1.1;
-  cursor:pointer;
-}
-button:hover, .btn:hover, [role="button"]:hover, .button:hover,
-button:active, .btn:active, [role="button"]:active, .button:active {
-  background: var(--primary-600);
-  color: #fff;
-}
-button:disabled, .btn:disabled { opacity:.55; cursor:not-allowed; }
-
-.card input[type="text"],
-.card input[type="search"],
-.card input[type="number"],
-.card select,
-.card textarea { width:100%; max-width:100%; display:block; }
-
-.app__footer { margin-top:16px; color:var(--muted); font-size:12px; display:flex; gap:10px; align-items:center; border-top:1px solid var(--border); padding-top:12px; }
-
-@media (max-width: 1023px) {
-  .app { padding: 12px; }
-  .app__grid { flex-direction: column; }
-  .resizer { display: none; }
+.app__header { 
+  margin-bottom: 24px; 
 }
 
+.app__header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
 
-/* QueryBuilder fallback styles (when Tailwind classes are not present) */
+.app__title { 
+  margin: 0; 
+  font-size: 32px; 
+  font-weight: 800; 
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, var(--morandi-primary), var(--morandi-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.app__version {
+  padding: 4px 12px;
+  background: var(--morandi-success);
+  color: white;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.app__subtitle { 
+  margin: 0;
+  color: var(--morandi-text-muted); 
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.app__grid { 
+  display: flex; 
+  gap: 16px; 
+  flex: 1;
+}
+
+.app__footer {
+  margin-top: 24px;
+  padding: 16px;
+  text-align: center;
+  color: var(--morandi-text-muted);
+  font-size: 12px;
+  border-top: 1px solid var(--morandi-border);
+}
+
+.app__footer p { margin: 0; }
+
+/* Cards */
+.card--morandi {
+  background: var(--morandi-card);
+  border: 1px solid var(--morandi-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  overflow: auto;
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.card__icon {
+  font-size: 20px;
+}
+
+.card__title { 
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--morandi-text);
+  margin: 0;
+}
+
+.card--stack > .divider { 
+  height: 1px; 
+  background: var(--morandi-border); 
+  margin: 20px 0; 
+}
+
+/* Resizer */
+.resizer { 
+  width: 16px; 
+  cursor: col-resize; 
+  position: relative; 
+  user-select: none; 
+  touch-action: none; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resizer__handle {
+  width: 3px;
+  height: 48px;
+  background: var(--morandi-border);
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+
+.resizer:hover .resizer__handle { 
+  background: var(--morandi-primary);
+  height: 64px;
+}
+
+/* Buttons */
+button, .btn {
+  background: var(--morandi-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-xs);
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+button:hover, .btn:hover {
+  background: var(--morandi-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(139, 157, 158, 0.3);
+}
+
+button:active, .btn:active {
+  transform: translateY(0);
+}
+
+button:disabled, .btn:disabled { 
+  opacity: 0.5; 
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="search"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--morandi-border);
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  color: var(--morandi-text);
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--morandi-primary);
+  box-shadow: 0 0 0 3px var(--morandi-primary-light);
+}
+
+/* Studies Tabs */
+.studies-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--morandi-border);
+}
+
+.studies-tab {
+  flex: 1;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--morandi-text-muted);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: -2px;
+}
+
+.studies-tab:hover {
+  background: var(--morandi-primary-light);
+  color: var(--morandi-primary);
+  transform: none;
+  box-shadow: none;
+}
+
+.studies-tab--active {
+  color: var(--morandi-primary);
+  border-bottom-color: var(--morandi-primary);
+  background: transparent;
+}
+
+.studies-tab__icon {
+  font-size: 16px;
+}
+
+/* Query Builder */
+.qb {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.qb__input-wrapper {
+  position: relative;
+}
+
 .qb__input {
   width: 100%;
-  max-width: 100%;
-  display: block;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  outline: none;
+  padding: 14px 16px;
+  border: 2px solid var(--morandi-border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  transition: all 0.3s ease;
 }
 
 .qb__input:focus {
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+  border-color: var(--morandi-primary);
+  box-shadow: 0 0 0 3px var(--morandi-primary-light);
 }
 
+.qb__input--active {
+  border-color: var(--morandi-primary);
+}
 
-/* Ensure QueryBuilder input doesn't collapse too narrow */
-.qb { width: 100%; }
-.qb__input { width: 100%; min-width: 420px; }
-@media (min-width: 1024px) {
-  .qb__input { min-width: 640px; }
+.qb__status {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--morandi-success);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.qb__operators {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.qb__btn {
+  padding: 8px 16px;
+  background: var(--morandi-secondary);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.qb__btn:hover {
+  background: var(--morandi-accent);
+}
+
+.qb__btn--reset {
+  background: transparent;
+  color: var(--morandi-error);
+  border: 1px solid var(--morandi-error);
+  margin-left: auto;
+}
+
+.qb__btn--reset:hover {
+  background: var(--morandi-error);
+  color: white;
+}
+
+.qb__tip {
+  padding: 12px;
+  background: var(--morandi-primary-light);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  color: var(--morandi-text-muted);
+  border-left: 3px solid var(--morandi-primary);
+}
+
+.qb__tip strong {
+  color: var(--morandi-text);
+}
+
+/* Terms Component */
+.terms {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.terms__controls {
+  display: flex;
+  gap: 8px;
+}
+
+.terms__list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.terms__ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.terms__li {
+  margin: 0;
+}
+
+.terms__name {
+  display: block;
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid var(--morandi-border);
+  border-radius: var(--radius-xs);
+  color: var(--morandi-text);
+  text-decoration: none;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.terms__name:hover {
+  background: var(--morandi-primary);
+  color: white;
+  border-color: var(--morandi-primary);
+  transform: translateX(4px);
+}
+
+.terms__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.terms__skeleton-row {
+  height: 40px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-xs);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.terms__empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--morandi-text-muted);
+  font-size: 13px;
+}
+
+/* Alert */
+.alert {
+  padding: 12px 16px;
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.alert--error {
+  background: rgba(184, 155, 155, 0.15);
+  border: 1px solid var(--morandi-error);
+  color: #8b6b6b;
+}
+
+.alert--info {
+  background: var(--morandi-primary-light);
+  border: 1px solid var(--morandi-primary);
+  color: var(--morandi-text);
+}
+
+/* Responsive */
+@media (max-width: 1023px) {
+  .app--morandi { padding: 12px; }
+  .app__grid { flex-direction: column; }
+  .resizer { display: none; }
+  .card--morandi { flex-basis: auto !important; }
+}
+
+/* Saved Studies Badge */
+.saved-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, var(--morandi-warning), var(--morandi-accent));
+  color: white;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
 }
