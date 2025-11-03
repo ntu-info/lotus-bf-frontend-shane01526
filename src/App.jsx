@@ -13,6 +13,7 @@ function AppContent() {
   const [query, setQuery] = useUrlQueryState('q')
   const [activeTab, setActiveTab] = useState('studies')
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [brainViewExpanded, setBrainViewExpanded] = useState(false)
   
   const { user, logout, isAuthenticated } = useAuth()
 
@@ -103,20 +104,24 @@ function AppContent() {
         <div className="app__subtitle">Location-or-Term Unified Search for Brain Functions</div>
       </header>
 
-      <main className="app__grid" ref={gridRef}>
-        <section className="card card--morandi" style={{ flexBasis: `${sizes[0]}%` }}>
-          <div className="card__header">
-            <span className="card__icon">🏷️</span>
-            <div className="card__title">Terms</div>
-          </div>
-          <Terms onPickTerm={handlePickTerm} />
-        </section>
+      <main className={`app__grid ${brainViewExpanded ? 'app__grid--compressed' : ''}`} ref={gridRef}>
+        {!brainViewExpanded && (
+          <>
+            <section className="card card--morandi" style={{ flexBasis: `${sizes[0]}%` }}>
+              <div className="card__header">
+                <span className="card__icon">🏷️</span>
+                <div className="card__title">Terms</div>
+              </div>
+              <Terms onPickTerm={handlePickTerm} />
+            </section>
 
-        <div className="resizer" aria-label="Resize left/middle" onMouseDown={(e) => startDrag(0, e)}>
-          <div className="resizer__handle" />
-        </div>
+            <div className="resizer" aria-label="Resize left/middle" onMouseDown={(e) => startDrag(0, e)}>
+              <div className="resizer__handle" />
+            </div>
+          </>
+        )}
 
-        <section className="card card--morandi card--stack" style={{ flexBasis: `${sizes[1]}%` }}>
+        <section className="card card--morandi card--stack" style={{ flexBasis: brainViewExpanded ? '100%' : `${sizes[1]}%` }}>
           <div className="card__header">
             <span className="card__icon">🔍</span>
             <div className="card__title">Query Builder</div>
@@ -156,18 +161,47 @@ function AppContent() {
           )}
         </section>
 
-        <div className="resizer" aria-label="Resize middle/right" onMouseDown={(e) => startDrag(1, e)}>
-          <div className="resizer__handle" />
-        </div>
+        {!brainViewExpanded && (
+          <>
+            <div className="resizer" aria-label="Resize middle/right" onMouseDown={(e) => startDrag(1, e)}>
+              <div className="resizer__handle" />
+            </div>
 
-        <section className="card card--morandi" style={{ flexBasis: `${sizes[2]}%` }}>
-          <div className="card__header">
-            <span className="card__icon">🧠</span>
-            <div className="card__title">Brain Viewer</div>
-          </div>
-          <NiiViewer query={query} />
-        </section>
+            <section className="card card--morandi" style={{ flexBasis: `${sizes[2]}%` }}>
+              <div className="card__header">
+                <span className="card__icon">🧠</span>
+                <div className="card__title">Brain Viewer</div>
+              </div>
+              <NiiViewer query={query} expanded={false} />
+              <button 
+                className="brain-viewer-toggle"
+                onClick={() => setBrainViewExpanded(true)}
+              >
+                <span>🔍</span>
+                <span>Expand Brain Viewer</span>
+              </button>
+            </section>
+          </>
+        )}
       </main>
+
+      {brainViewExpanded && (
+        <div className="brain-viewer-expanded">
+          <div className="brain-viewer-expanded__header">
+            <div className="brain-viewer-expanded__title">
+              <span>🧠</span>
+              <span>Brain Viewer - Expanded Mode</span>
+            </div>
+            <button 
+              className="brain-viewer-expanded__close"
+              onClick={() => setBrainViewExpanded(false)}
+            >
+              ✕ Exit Expanded Mode
+            </button>
+          </div>
+          <NiiViewer query={query} expanded={true} />
+        </div>
+      )}
 
       <footer className="app__footer">
         <p>Powered by Neurosynth Database · National Taiwan University</p>
