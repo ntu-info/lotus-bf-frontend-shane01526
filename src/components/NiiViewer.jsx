@@ -517,31 +517,6 @@ export function NiiViewer({ query, expanded = false }) {
         </div>
       )}
 
-      {!!nx && zoomedView && (
-        <div className='fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-8' onClick={() => setZoomedView(null)}>
-          <div className='relative max-w-5xl w-full' onClick={(e) => e.stopPropagation()}>
-            <button 
-              onClick={() => setZoomedView(null)}
-              className='absolute top-4 right-4 z-10 bg-white text-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200 text-2xl font-bold'
-              style={{boxShadow: '0 4px 12px rgba(0,0,0,0.3)'}}
-            >
-              ✕
-            </button>
-            {sliceConfigs.filter(s => s.key === zoomedView.axis).map(({ key, name, axisLabel, canvasRef }) => (
-              <div key={key} className='bg-white rounded-2xl p-6'>
-                <h3 className='text-xl font-bold mb-4'>{name} View ({axisLabel})</h3>
-                <canvas 
-                  ref={canvasRef} 
-                  className='w-full rounded-xl border cursor-crosshair' 
-                  onClick={(e)=>onCanvasClick(e, key)}
-                  style={{ maxHeight: '70vh', imageRendering: 'pixelated' }}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {!!nx && !expanded && (
         <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
           <label className='flex flex-col'>Gaussian FWHM:
