@@ -2,7 +2,7 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
-import './index.css' 
+import './index.css'
 
 function ErrorBoundary({ children }) {
   const [err, setErr] = React.useState(null)
@@ -15,12 +15,13 @@ function ErrorBoundary({ children }) {
       window.removeEventListener('unhandledrejection', handler)
     }
   }, [])
+  
   if (err) {
     return (
-      <div style="padding:16px; font-family: ui-sans-serif">
+      <div style={{ padding: '16px', fontFamily: 'ui-sans-serif' }}>
         <h2>Runtime error!</h2>
-        <pre style="white-space:pre-wrap; background:#f5f5f5; padding:12px; border-radius:8px;">
-{String(err?.stack || err?.message || err)}
+        <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '12px', borderRadius: '8px' }}>
+          {String(err?.stack || err?.message || err)}
         </pre>
       </div>
     )
@@ -28,7 +29,7 @@ function ErrorBoundary({ children }) {
   return children
 }
 
-console.log('[main] booting...') // smoke test：打開 DevTools 會看到
+console.log('[main] LoTUS-BF v2.0 booting...')
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -37,4 +38,3 @@ createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </React.StrictMode>
 )
-
