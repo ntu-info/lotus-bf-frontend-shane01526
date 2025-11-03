@@ -1,5 +1,4 @@
-
-// 顯示設定：讓 x>0 出現在畫面右側（右腦在右）
+// Enhanced NiiViewer with clickable zoom feature
 const X_RIGHT_ON_SCREEN_RIGHT = true;
 
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -8,14 +7,12 @@ import { API_BASE } from '../api'
 
 const MNI_BG_URL = 'static/mni_2mm.nii.gz'
 
-// Detect MNI152 2mm template dims & spacing (91x109x91, 2mm iso)
 function isStandardMNI2mm(dims, voxelMM) {
   const okDims = Array.isArray(dims) && dims[0]===91 && dims[1]===109 && dims[2]===91;
   const okSp   = voxelMM && Math.abs(voxelMM[0]-2)<1e-3 && Math.abs(voxelMM[1]-2)<1e-3 && Math.abs(voxelMM[2]-2)<1e-3;
   return okDims && okSp;
 }
-// Standard MNI152 2mm affine (voxel i,j,k -> MNI mm):
-// x = -2*i + 90;  y = 2*j - 126;  z = 2*k - 72
+
 const MNI2MM = { x0: 90, y0: -126, z0: -72, vx: 2, vy: 2, vz: 2 };
 
 export function NiiViewer({ query }) {
@@ -23,8 +20,9 @@ export function NiiViewer({ query }) {
   const [loadingMap, setLoadingMap] = useState(false)
   const [errBG, setErrBG] = useState('')
   const [errMap, setErrMap] = useState('')
+  const [zoomedView, setZoomedView] = useState(null) // { axis: 'x'|'y'|'z', index }
 
-  // backend params (map generation)
+  // backend params
   const [voxel, setVoxel] = useState(2.0)
   const [fwhm, setFwhm] = useState(10.0)
   const [kernel, setKernel] = useState('gauss')
@@ -34,25 +32,23 @@ export function NiiViewer({ query }) {
   const [overlayAlpha, setOverlayAlpha] = useState(0.5)
   const [posOnly, setPosOnly] = useState(true)
   const [useAbs, setUseAbs] = useState(false)
-  const [thrMode, setThrMode] = useState('pctl') // default: Percentile (per request)
+  const [thrMode, setThrMode] = useState('pctl')
   const [pctl, setPctl] = useState(95)
-  const [thrValue, setThrValue] = useState(0)     // used when mode === 'value'
+  const [thrValue, setThrValue] = useState(0)
 
   // volumes
-  const bgRef  = useRef(null)   // { data, dims:[nx,ny,nz], voxelMM:[vx,vy,vz], min, max }
-  const mapRef = useRef(null)   // { data, dims:[nx,ny,nz], voxelMM:[vx,vy,vz], min, max }
+  const bgRef  = useRef(null)
+  const mapRef = useRef(null)
+  
   const getVoxelMM = () => {
     const vm = bgRef.current?.voxelMM ?? mapRef.current?.voxelMM ?? [1,1,1]
     return { x: vm[0], y: vm[1], z: vm[2] }
   }
-  const [dims, setDims] = useState([0,0,0]) // canvas dims (prefer BG; overlay only if same dims)
-
-  // slice indices (voxel coordinates in [0..N-1])
-  const [ix, setIx] = useState(0) // sagittal (X)
-  const [iy, setIy] = useState(0) // coronal  (Y)
-  const [iz, setIz] = useState(0) // axial    (Z)
-
-  // Neurosynth-style displayed coords: signed, centered at middle voxel
+  
+  const [dims, setDims] = useState([0,0,0])
+  const [ix, setIx] = useState(0)
+  const [iy, setIy] = useState(0)
+  const [iz, setIz] = useState(0)
   const [cx, setCx] = useState('0')
   const [cy, setCy] = useState('0')
   const [cz, setCz] = useState('0')
@@ -69,7 +65,7 @@ export function NiiViewer({ query }) {
     return u.toString()
   }, [query, voxel, fwhm, kernel, r])
 
-  // ---------- utils ----------
+  // Utils
   function asTypedArray (header, buffer) {
     switch (header.datatypeCode) {
       case nifti.NIFTI1.TYPE_INT8:    return new Int8Array(buffer)
@@ -83,6 +79,7 @@ export function NiiViewer({ query }) {
       default: return new Float32Array(buffer)
     }
   }
+  
   function minmax (arr) {
     let mn =  Infinity, mx = -Infinity
     for (let i = 0; i < arr.length; i++) {
@@ -92,6 +89,7 @@ export function NiiViewer({ query }) {
     }
     return [mn, mx]
   }
+  
   function percentile(arr, p, step=Math.ceil(arr.length/200000)) {
     if (!arr.length) return 0
     const samp = []
@@ -100,6 +98,7 @@ export function NiiViewer({ query }) {
     const k = Math.floor((p/100) * (samp.length - 1))
     return samp[Math.max(0, Math.min(samp.length-1, k))]
   }
+  
   async function loadNifti(url) {
     const res = await fetch(url)
     if (!res.ok) {
@@ -134,12 +133,8 @@ export function NiiViewer({ query }) {
 
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 
-  // helpers: convert between index [0..N-1] and neurosynth-style signed coord centered at mid voxel
-  // Display conventions to match Neurosynth-like UI:
-  //  - X: right-positive
-  //  - Y: anterior-positive (but screen vertical is flipped), so invert sign
-  //  - Z: superior-positive (also vertical), invert sign
-  const AXIS_SIGN = { x: -1, y: 1, z: 1 } // X is neg for index<->coord mapping only when not using standard MNI affine
+  const AXIS_SIGN = { x: -1, y: 1, z: 1 }
+  
   const idx2coord = (i, n, axis) => {
     const [nx, ny, nz] = dims;
     const { x: vx, y: vy, z: vz } = getVoxelMM();
@@ -152,7 +147,8 @@ export function NiiViewer({ query }) {
     const mmPerVoxel = axis === 'x' ? vx : axis === 'y' ? vy : vz;
     return AXIS_SIGN[axis] * (i - Math.floor(n/2)) * mmPerVoxel;
   }
-const coord2idx = (c_mm, n, axis) => {
+  
+  const coord2idx = (c_mm, n, axis) => {
     const [nx, ny, nz] = dims;
     const { x: vx, y: vy, z: vz } = getVoxelMM();
     const isStd = isStandardMNI2mm([nx, ny, nz], [vx, vy, vz]);
@@ -170,7 +166,8 @@ const coord2idx = (c_mm, n, axis) => {
     const idx = Math.round(v);
     return Math.max(0, Math.min(n-1, idx));
   }
-  // load background on mount
+
+  // Load background
   useEffect(() => {
     let alive = true
     setLoadingBG(true); setErrBG('')
@@ -179,7 +176,6 @@ const coord2idx = (c_mm, n, axis) => {
         const bg = await loadNifti(MNI_BG_URL)
         if (!alive) return
         bgRef.current = bg
-        // Always prefer BG dims for the canvas
         setDims(bg.dims)
         const [nx,ny,nz] = bg.dims
         const mx = Math.floor(nx/2), my = Math.floor(ny/2), mz = Math.floor(nz/2)
@@ -197,8 +193,6 @@ const coord2idx = (c_mm, n, axis) => {
     return () => { alive = false }
   }, [])
 
-  
-  // keep thrValue within current map range when map changes
   useEffect(() => {
     const mn = mapRef.current?.min ?? 0
     const mx = mapRef.current?.max ?? 1
@@ -207,7 +201,7 @@ const coord2idx = (c_mm, n, axis) => {
     }
   }, [mapRef.current, dims])
 
-// load meta-analytic map when query/params change
+  // Load map
   useEffect(() => {
     if (!mapUrl) { mapRef.current = null; return }
     let alive = true
@@ -243,11 +237,8 @@ const coord2idx = (c_mm, n, axis) => {
     return percentile(mv.data, Math.max(0, Math.min(100, Number(pctl) || 95)))
   }, [thrMode, thrValue, pctl, mapRef.current])
 
-  // draw one slice (upright orientation via vertical flip)
-  function drawSlice (canvas, axis /* 'z' | 'y' | 'x' */, index) {
+  function drawSlice (canvas, axis, index) {
     const [nx, ny, nz] = dims
-    
-    // 若要讓 x>0 出現在畫面右側，就在取樣時把 X 軸做水平翻轉
     const sx = (x) => (X_RIGHT_ON_SCREEN_RIGHT ? (nx - 1 - x) : x);
     const bg  = bgRef.current
     const map = mapRef.current
@@ -269,16 +260,14 @@ const coord2idx = (c_mm, n, axis) => {
     const R = 255, G = 0, B = 0
     const thr = mapThreshold
 
-    // background normalization based on its own min/max
     const bgMin = bg?.min ?? 0
     const bgMax = bg?.max ?? 1
     const bgRange = (bgMax - bgMin) || 1
 
     let p = 0
     for (let yy=0; yy<h; yy++) {
-      const srcY = h - 1 - yy // flip vertically
+      const srcY = h - 1 - yy
       for (let xx=0; xx<w; xx++) {
-        // draw background
         let gray = 0
         if (getBG) {
           const vbg = getBG(xx, srcY)
@@ -292,7 +281,6 @@ const coord2idx = (c_mm, n, axis) => {
         img.data[p + 2] = gray
         img.data[p + 3] = 255
 
-        // overlay map
         if (getMap) {
           let mv = getMap(xx, srcY)
           const raw = mv
@@ -310,45 +298,55 @@ const coord2idx = (c_mm, n, axis) => {
     }
     ctx.putImageData(img, 0, 0)
 
-    // draw green crosshairs
+    // crosshairs
     ctx.save()
     ctx.strokeStyle = '#00ff00'
     ctx.lineWidth = 1
     let cx = 0, cy = 0
-    if (axis === 'z') { // plane: X by Y
+    if (axis === 'z') { 
       cx = Math.max(0, Math.min(w-1, (X_RIGHT_ON_SCREEN_RIGHT ? (w - 1 - ix) : ix)))
       cy = Math.max(0, Math.min(h-1, iy))
-    } else if (axis === 'y') { // plane: X by Z
+    } else if (axis === 'y') {
       cx = Math.max(0, Math.min(w-1, (X_RIGHT_ON_SCREEN_RIGHT ? (w - 1 - ix) : ix)))
       cy = Math.max(0, Math.min(h-1, iz))
-    } else { // axis === 'x' (plane: Y by Z)
+    } else {
       cx = Math.max(0, Math.min(w-1, iy))
       cy = Math.max(0, Math.min(h-1, iz))
     }
-    const screenY = h - 1 - cy // account for vertical flip used when drawing
-    // vertical line
+    const screenY = h - 1 - cy
     ctx.beginPath(); ctx.moveTo(cx + 0.5, 0); ctx.lineTo(cx + 0.5, h); ctx.stroke()
-    // horizontal line
     ctx.beginPath(); ctx.moveTo(0, screenY + 0.5); ctx.lineTo(w, screenY + 0.5); ctx.stroke()
     ctx.restore()
   }
 
-  // click-to-move crosshairs
   function onCanvasClick (e, axis) {
     const canvas = e.currentTarget
     const rect = canvas.getBoundingClientRect()
     const x = Math.floor((e.clientX - rect.left) * canvas.width / rect.width)
     const y = Math.floor((e.clientY - rect.top) * canvas.height / rect.height)
-    const srcY = canvas.height - 1 - y // invert because we draw with vertical flip
+    const srcY = canvas.height - 1 - y
     const [nx,ny,nz] = dims
     
     const toIdxX = (screenX) => (X_RIGHT_ON_SCREEN_RIGHT ? (nx - 1 - screenX) : screenX);
-    if (axis === 'z') { const xi = toIdxX(x); setIx(xi); setIy(srcY); setCx(String(idx2coord(xi, nx, 'x'))); setCy(String(idx2coord(srcY, ny, 'y'))) }
-    else if (axis === 'y') { const xi = toIdxX(x); setIx(xi); setIz(srcY); setCx(String(idx2coord(xi, nx, 'x'))); setCz(String(idx2coord(srcY, nz, 'z'))) }
-    else { setIy(x); setIz(srcY); setCy(String(idx2coord(x, ny, 'y'))); setCz(String(idx2coord(srcY, nz, 'z'))) }
+    if (axis === 'z') { 
+      const xi = toIdxX(x); 
+      setIx(xi); setIy(srcY); 
+      setCx(String(idx2coord(xi, nx, 'x'))); 
+      setCy(String(idx2coord(srcY, ny, 'y'))) 
+    }
+    else if (axis === 'y') { 
+      const xi = toIdxX(x); 
+      setIx(xi); setIz(srcY); 
+      setCx(String(idx2coord(xi, nx, 'x'))); 
+      setCz(String(idx2coord(srcY, nz, 'z'))) 
+    }
+    else { 
+      setIy(x); setIz(srcY); 
+      setCy(String(idx2coord(x, ny, 'y'))); 
+      setCz(String(idx2coord(srcY, nz, 'z'))) 
+    }
   }
 
-  // keep display coords in sync when ix/iy/iz/dims change (e.g., after loads)
   useEffect(() => {
     const [nx,ny,nz] = dims
     if (!nx) return
@@ -357,11 +355,9 @@ const coord2idx = (c_mm, n, axis) => {
     setCz(String(idx2coord(iz, nz, 'z')))
   }, [ix,iy,iz,dims])
 
-  // commit handlers: parse signed integer, map to index, clamp to volume
   const commitCoord = (axis) => {
     const [nx,ny,nz] = dims
     let vStr = axis==='x' ? cx : axis==='y' ? cy : cz
-    // allow empty / '-' temporary states
     if (vStr === '' || vStr === '-' ) return
     const parsed = parseFloat(vStr)
     if (Number.isNaN(parsed)) return
@@ -370,7 +366,6 @@ const coord2idx = (c_mm, n, axis) => {
     if (axis==='z') setIz(coord2idx(parsed, nz, 'z'))
   }
 
-  // redraw on state changes
   useEffect(() => {
     const [nx, ny, nz] = dims
     if (!nx) return
@@ -378,7 +373,6 @@ const coord2idx = (c_mm, n, axis) => {
     if (c0 && iz >=0 && iz < nz) drawSlice(c0, 'z', iz)
     if (c1 && iy >=0 && iy < ny) drawSlice(c1, 'y', iy)
     if (c2 && ix >=0 && ix < nx) drawSlice(c2, 'x', ix)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     dims, ix, iy, iz,
     overlayAlpha, posOnly, useAbs, thrMode, pctl, thrValue,
@@ -387,14 +381,12 @@ const coord2idx = (c_mm, n, axis) => {
 
   const [nx, ny, nz] = dims
 
-  // slice configs (labels only; numbers removed)
   const sliceConfigs = [
     { key: 'y', name: 'Coronal',  axisLabel: 'Y', index: iy, setIndex: setIy, max: Math.max(0, ny-1), canvasRef: canvases[1] },
     { key: 'x', name: 'Sagittal', axisLabel: 'X', index: ix, setIndex: setIx, max: Math.max(0, nx-1), canvasRef: canvases[2] },
     { key: 'z', name: 'Axial',    axisLabel: 'Z', index: iz, setIndex: setIz, max: Math.max(0, nz-1), canvasRef: canvases[0] },
   ]
 
-  // shared small input styles to mimic Neurosynth (compact bordered boxes)
   const nsInputCls = 'w-16 rounded border border-gray-400 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400'
   const nsLabelCls = 'mr-1 text-sm'
 
@@ -407,8 +399,7 @@ const coord2idx = (c_mm, n, axis) => {
         </div>
       </div>
 
-      {/* --- Threshold mode & value --- */}
-      <div className='rounded-xl border p-3 text-sm'>
+      <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
         <label className='flex items-center gap-2'>
           <span>Threshold mode</span>
           <select value={thrMode} onChange={e=>setThrMode(e.target.value)} className='rounded-lg border px-2 py-1'>
@@ -435,7 +426,6 @@ const coord2idx = (c_mm, n, axis) => {
           </>
         )}
 
-        {/* Neurosynth-style coordinate inputs (signed, centered at 0) */}
         <div className='mt-1 flex items-center gap-4'>
           <label className='flex items-center'>
             <span className={nsLabelCls}>X (mm):</span>
@@ -446,7 +436,7 @@ const coord2idx = (c_mm, n, axis) => {
               onChange={e=>setCx(e.target.value)}
               onBlur={()=>commitCoord('x')}
               onKeyDown={e=>{ if(e.key==='Enter'){ commitCoord('x') } }}
-              aria-label='X coordinate (centered)'
+              aria-label='X coordinate'
             />
           </label>
           <label className='flex items-center'>
@@ -458,7 +448,7 @@ const coord2idx = (c_mm, n, axis) => {
               onChange={e=>setCy(e.target.value)}
               onBlur={()=>commitCoord('y')}
               onKeyDown={e=>{ if(e.key==='Enter'){ commitCoord('y') } }}
-              aria-label='Y coordinate (centered)'
+              aria-label='Y coordinate'
             />
           </label>
           <label className='flex items-center'>
@@ -470,13 +460,12 @@ const coord2idx = (c_mm, n, axis) => {
               onChange={e=>setCz(e.target.value)}
               onBlur={()=>commitCoord('z')}
               onKeyDown={e=>{ if(e.key==='Enter'){ commitCoord('z') } }}
-              aria-label='Z coordinate (centered)'
+              aria-label='Z coordinate'
             />
           </label>
         </div>
       </div>
 
-      {/* --- Brain views --- */}
       {(loadingBG || loadingMap) && (
         <div className='grid gap-3 lg:grid-cols-3'>
           {Array.from({ length: 3 }).map((_, i) => (
@@ -484,6 +473,7 @@ const coord2idx = (c_mm, n, axis) => {
           ))}
         </div>
       )}
+      
       {(errBG || errMap) && (
         <div className='rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800'>
           {errBG && <div>Background: {errBG}</div>}
@@ -491,34 +481,68 @@ const coord2idx = (c_mm, n, axis) => {
         </div>
       )}
 
-      {!!nx && (
+      {!!nx && !zoomedView && (
         <div className='grid grid-cols-3 gap-3' style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
-          {sliceConfigs.map(({ key, name, axisLabel, index, setIndex, max, canvasRef }) => (
+          {sliceConfigs.map(({ key, name, axisLabel, canvasRef }) => (
             <div key={key} className='flex flex-col gap-2'>
-              <div className='text-xs text-gray-600'>{name} ({axisLabel})</div>
-              <div className='flex items-center gap-2'>
-                <canvas ref={canvasRef} className='h-64 w-full rounded-xl border' onClick={(e)=>onCanvasClick(e, key)} style={{ cursor: 'crosshair' }} />
+              <div className='text-xs text-gray-600 flex justify-between items-center'>
+                <span>{name} ({axisLabel})</span>
+                <button 
+                  onClick={() => setZoomedView({ axis: key })}
+                  className='text-xs px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600'
+                  style={{fontSize: '10px', padding: '4px 8px'}}
+                >
+                  🔍 Zoom
+                </button>
               </div>
+              <canvas 
+                ref={canvasRef} 
+                className='w-full rounded-xl border cursor-crosshair' 
+                onClick={(e)=>onCanvasClick(e, key)} 
+                style={{ height: '280px', imageRendering: 'pixelated' }}
+              />
             </div>
           ))}
         </div>
       )}
 
-      {/* map generation params */}
-      <div className='rounded-xl border p-3 text-sm'>
+      {!!nx && zoomedView && (
+        <div className='fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-8' onClick={() => setZoomedView(null)}>
+          <div className='relative max-w-5xl w-full' onClick={(e) => e.stopPropagation()}>
+            <button 
+              onClick={() => setZoomedView(null)}
+              className='absolute top-4 right-4 z-10 bg-white text-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200 text-2xl font-bold'
+              style={{boxShadow: '0 4px 12px rgba(0,0,0,0.3)'}}
+            >
+              ✕
+            </button>
+            {sliceConfigs.filter(s => s.key === zoomedView.axis).map(({ key, name, axisLabel, canvasRef }) => (
+              <div key={key} className='bg-white rounded-2xl p-6'>
+                <h3 className='text-xl font-bold mb-4'>{name} View ({axisLabel})</h3>
+                <canvas 
+                  ref={canvasRef} 
+                  className='w-full rounded-xl border cursor-crosshair' 
+                  onClick={(e)=>onCanvasClick(e, key)}
+                  style={{ maxHeight: '70vh', imageRendering: 'pixelated' }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
         <label className='flex flex-col'>Gaussian FWHM:
           <input type='number' step='0.5' value={fwhm} onChange={e=>setFwhm(Number(e.target.value)||0)} className='w-28 rounded-lg border px-2 py-1'/>
           <br />
         </label>
       </div>
 
-      {/* overlay controls */}
-      <div className='rounded-xl border p-3 text-sm'>
+      <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
         <label className='flex items-center gap-2'>
-          <span>Overlay alpha</span>
+          <span>Overlay alpha: {overlayAlpha.toFixed(2)}</span>
           <input type='range' min={0} max={1} step={0.05} value={overlayAlpha} onChange={e=>setOverlayAlpha(Number(e.target.value))} className='w-40' />
         </label>
-        <br />
       </div>
     </div>
   )
