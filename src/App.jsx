@@ -4,20 +4,25 @@ import { QueryBuilder } from './components/QueryBuilder'
 import { Studies } from './components/Studies'
 import { SavedStudies } from './components/SavedStudies'
 import { NiiViewer } from './components/NiiViewer'
+import { AuthModal } from './components/AuthModal'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { useUrlQueryState } from './hooks/useUrlQueryState'
 import './App.css'
 
-export default function App () {
+function AppContent() {
   const [query, setQuery] = useUrlQueryState('q')
-  const [activeTab, setActiveTab] = useState('studies') // 'studies' | 'saved'
+  const [activeTab, setActiveTab] = useState('studies')
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  
+  const { user, logout, isAuthenticated } = useAuth()
 
   const handlePickTerm = useCallback((t) => {
     setQuery((q) => (q ? `${q} ${t}` : t))
   }, [setQuery])
 
-  // --- resizable panes state ---
+  // Resizable panes state - adjusted for larger brain viewer
   const gridRef = useRef(null)
-  const [sizes, setSizes] = useState([25, 45, 30])
+  const [sizes, setSizes] = useState([20, 35, 45]) // More space for brain viewer
   const MIN_PX = 240
 
   const startDrag = (which, e) => {
@@ -61,8 +66,39 @@ export default function App () {
     <div className="app app--morandi">
       <header className="app__header">
         <div className="app__header-top">
-          <h1 className="app__title">LoTUS-BF</h1>
-          <div className="app__version">v2.0</div>
+          <div className="app__header-left">
+            <h1 className="app__title">LoTUS-BF</h1>
+            <div className="app__version">v2.0</div>
+          </div>
+          
+          <div className="app__header-right">
+            {isAuthenticated ? (
+              <div className="app__user-menu">
+                <div className="app__user-avatar">
+                  {user?.name?.[0]?.toUpperCase() || 'U'}
+                </div>
+                <span className="app__user-name">{user?.name || user?.email}</span>
+                <button className="app__logout-btn" onClick={logout}>
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="app__auth-buttons">
+                <button 
+                  className="app__auth-btn app__auth-btn--login"
+                  onClick={() => setShowAuthModal(true)}
+                >
+                  Sign In
+                </button>
+                <button 
+                  className="app__auth-btn app__auth-btn--register"
+                  onClick={() => setShowAuthModal(true)}
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         <div className="app__subtitle">Location-or-Term Unified Search for Brain Functions</div>
       </header>
@@ -99,10 +135,17 @@ export default function App () {
             </button>
             <button 
               className={`studies-tab ${activeTab === 'saved' ? 'studies-tab--active' : ''}`}
-              onClick={() => setActiveTab('saved')}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  setShowAuthModal(true)
+                  return
+                }
+                setActiveTab('saved')
+              }}
             >
               <span className="studies-tab__icon">⭐</span>
               Saved Studies
+              {isAuthenticated && <span className="saved-badge">✓</span>}
             </button>
           </div>
           
@@ -129,6 +172,16 @@ export default function App () {
       <footer className="app__footer">
         <p>Powered by Neurosynth Database · National Taiwan University</p>
       </footer>
+
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   )
 }
