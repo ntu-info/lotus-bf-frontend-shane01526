@@ -50,6 +50,107 @@ body {
   align-items: center;
   gap: 12px;
   margin-bottom: 8px;
+  justify-content: space-between;
+}
+
+.app__header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app__header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app__user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid var(--morandi-border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.app__user-menu:hover {
+  background: var(--morandi-primary-light);
+  border-color: var(--morandi-primary);
+}
+
+.app__user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--morandi-primary), var(--morandi-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.app__user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--morandi-text);
+}
+
+.app__auth-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.app__auth-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.app__auth-btn--login {
+  background: transparent;
+  border: 1px solid var(--morandi-primary);
+  color: var(--morandi-primary);
+}
+
+.app__auth-btn--login:hover {
+  background: var(--morandi-primary-light);
+}
+
+.app__auth-btn--register {
+  background: linear-gradient(135deg, var(--morandi-primary), var(--morandi-secondary));
+  border: none;
+  color: white;
+}
+
+.app__auth-btn--register:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 157, 158, 0.3);
+}
+
+.app__logout-btn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--morandi-border);
+  color: var(--morandi-text-muted);
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.app__logout-btn:hover {
+  background: var(--morandi-error);
+  color: white;
+  border-color: var(--morandi-error);
 }
 
 .app__title { 
@@ -185,9 +286,11 @@ button:disabled, .btn:disabled {
   transform: none;
 }
 
-/* Inputs */
+/* Inputs - Light background for search */
 input[type="text"],
 input[type="search"],
+input[type="email"],
+input[type="password"],
 input[type="number"],
 select,
 textarea {
@@ -199,6 +302,7 @@ textarea {
   color: var(--morandi-text);
   font-family: inherit;
   transition: all 0.2s ease;
+  background: white;
 }
 
 input:focus,
@@ -270,6 +374,7 @@ textarea:focus {
   border-radius: var(--radius-sm);
   font-size: 14px;
   transition: all 0.3s ease;
+  background: white;
 }
 
 .qb__input:focus {
