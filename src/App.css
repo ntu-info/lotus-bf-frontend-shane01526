@@ -286,7 +286,7 @@ button:disabled, .btn:disabled {
   transform: none;
 }
 
-/* Inputs - Light background for search */
+/* Inputs - Morandi light background with dark text */
 input[type="text"],
 input[type="search"],
 input[type="email"],
@@ -302,7 +302,14 @@ textarea {
   color: var(--morandi-text);
   font-family: inherit;
   transition: all 0.2s ease;
-  background: white;
+  background: #faf9f7;
+}
+
+/* Special styling for Terms search and Query Builder */
+.terms__controls input,
+.qb__input {
+  background: #faf9f7;
+  color: var(--morandi-text);
 }
 
 input:focus,
@@ -544,6 +551,101 @@ textarea:focus {
   .app__grid { flex-direction: column; }
   .resizer { display: none; }
   .card--morandi { flex-basis: auto !important; }
+}
+
+/* Brain Viewer Expanded Mode */
+.brain-viewer-expanded {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--morandi-card);
+  border-top: 2px solid var(--morandi-primary);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  height: 60vh;
+  overflow: auto;
+  animation: slideUpExpand 0.4s ease;
+  padding: 24px;
+}
+
+@keyframes slideUpExpand {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.brain-viewer-expanded__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--morandi-border);
+}
+
+.brain-viewer-expanded__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--morandi-text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brain-viewer-expanded__close {
+  padding: 10px 20px;
+  background: var(--morandi-error);
+  color: white;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.brain-viewer-expanded__close:hover {
+  background: #a88787;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(184, 155, 155, 0.4);
+}
+
+.brain-viewer-compact {
+  height: 100%;
+  overflow: auto;
+}
+
+.brain-viewer-toggle {
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, var(--morandi-primary), var(--morandi-secondary));
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.brain-viewer-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 157, 158, 0.3);
+}
+
+.app__grid--compressed {
+  max-height: 40vh;
+  overflow-y: auto;
 }
 
 /* Saved Studies Badge */
