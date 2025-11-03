@@ -1,14 +1,15 @@
-
 import { useCallback, useRef, useState } from 'react'
 import { Terms } from './components/Terms'
 import { QueryBuilder } from './components/QueryBuilder'
 import { Studies } from './components/Studies'
+import { SavedStudies } from './components/SavedStudies'
 import { NiiViewer } from './components/NiiViewer'
 import { useUrlQueryState } from './hooks/useUrlQueryState'
 import './App.css'
 
 export default function App () {
   const [query, setQuery] = useUrlQueryState('q')
+  const [activeTab, setActiveTab] = useState('studies') // 'studies' | 'saved'
 
   const handlePickTerm = useCallback((t) => {
     setQuery((q) => (q ? `${q} ${t}` : t))
@@ -16,7 +17,7 @@ export default function App () {
 
   // --- resizable panes state ---
   const gridRef = useRef(null)
-  const [sizes, setSizes] = useState([28, 44, 28]) // [left, middle, right]
+  const [sizes, setSizes] = useState([25, 45, 30])
   const MIN_PX = 240
 
   const startDrag = (which, e) => {
@@ -57,121 +58,77 @@ export default function App () {
   }
 
   return (
-    <div className="app">
-      {/* Inline style injection to enforce no-hover look */}
-      <style>{`
-        :root {
-          --primary-600: #2563eb;
-          --primary-700: #1d4ed8;
-          --primary-800: #1e40af;
-          --border: #e5e7eb;
-        }
-        .app { padding-right: 0 !important; }
-        .app__grid { width: 100vw; max-width: 100vw; }
-        .card input[type="text"],
-        .card input[type="search"],
-        .card input[type="number"],
-        .card select,
-        .card textarea {
-          width: 100% !important;
-          max-width: 100% !important;
-          display: block;
-        }
-        /* Downsized buttons */
-        .card button,
-        .card [role="button"],
-        .card .btn,
-        .card .button {
-          font-size: 12px !important;
-          padding: 4px 8px !important;
-          border-radius: 8px !important;
-          line-height: 1.2 !important;
-          background: var(--primary-600) !important;
-          color: #fff !important;
-          border: none !important;
-        }
-        /* No visual change on hover/active */
-        .card button:hover,
-        .card button:active,
-        .card [role="button"]:hover,
-        .card [role="button"]:active,
-        .card .btn:hover,
-        .card .btn:active,
-        .card .button:hover,
-        .card .button:active {
-          background: var(--primary-600) !important;
-          color: #fff !important;
-        }
-        /* Toolbars / chips also no-hover */
-        .card .toolbar button,
-        .card .toolbar [role="button"],
-        .card .toolbar .btn,
-        .card .toolbar .button,
-        .card .qb-toolbar button,
-        .card .qb-toolbar [role="button"],
-        .card .qb-toolbar .btn,
-        .card .qb-toolbar .button,
-        .card .query-builder button,
-        .card .query-builder [role="button"],
-        .card .query-builder .btn,
-        .card .query-builder .button,
-        .card .chip,
-        .card .pill,
-        .card .tag {
-          background: var(--primary-600) !important;
-          color: #fff !important;
-          border: none !important;
-        }
-        .card .toolbar button:hover,
-        .card .qb-toolbar button:hover,
-        .card .query-builder button:hover,
-        .card .chip:hover,
-        .card .pill:hover,
-        .card .tag:hover,
-        .card .toolbar button:active,
-        .card .qb-toolbar button:active,
-        .card .query-builder button:active {
-          background: var(--primary-600) !important;
-          color: #fff !important;
-        }
-        /* Disabled stays same color but dimmer for affordance */
-        .card .toolbar button:disabled,
-        .card .qb-toolbar button:disabled,
-        .card .query-builder button:disabled,
-        .card button[disabled],
-        .card [aria-disabled="true"] {
-          background: var(--primary-600) !important;
-          color: #fff !important;
-          opacity: .55 !important;
-        }
-      `}</style>
-
+    <div className="app app--morandi">
       <header className="app__header">
-        <h1 className="app__title">LoTUS-BF</h1>
+        <div className="app__header-top">
+          <h1 className="app__title">LoTUS-BF</h1>
+          <div className="app__version">v2.0</div>
+        </div>
         <div className="app__subtitle">Location-or-Term Unified Search for Brain Functions</div>
       </header>
 
       <main className="app__grid" ref={gridRef}>
-        <section className="card" style={{ flexBasis: `${sizes[0]}%` }}>
-          <div className="card__title">Terms</div>
+        <section className="card card--morandi" style={{ flexBasis: `${sizes[0]}%` }}>
+          <div className="card__header">
+            <span className="card__icon">🏷️</span>
+            <div className="card__title">Terms</div>
+          </div>
           <Terms onPickTerm={handlePickTerm} />
         </section>
 
-        <div className="resizer" aria-label="Resize left/middle" onMouseDown={(e) => startDrag(0, e)} />
+        <div className="resizer" aria-label="Resize left/middle" onMouseDown={(e) => startDrag(0, e)}>
+          <div className="resizer__handle" />
+        </div>
 
-        <section className="card card--stack" style={{ flexBasis: `${sizes[1]}%` }}>
+        <section className="card card--morandi card--stack" style={{ flexBasis: `${sizes[1]}%` }}>
+          <div className="card__header">
+            <span className="card__icon">🔍</span>
+            <div className="card__title">Query Builder</div>
+          </div>
           <QueryBuilder query={query} setQuery={setQuery} />
-          {/* <div className="hint">Current Query：<code className="hint__code">{query || '(empty)'}</code></div> */}
+          
           <div className="divider" />
-          <Studies query={query} />
+          
+          <div className="studies-tabs">
+            <button 
+              className={`studies-tab ${activeTab === 'studies' ? 'studies-tab--active' : ''}`}
+              onClick={() => setActiveTab('studies')}
+            >
+              <span className="studies-tab__icon">📊</span>
+              Search Results
+            </button>
+            <button 
+              className={`studies-tab ${activeTab === 'saved' ? 'studies-tab--active' : ''}`}
+              onClick={() => setActiveTab('saved')}
+            >
+              <span className="studies-tab__icon">⭐</span>
+              Saved Studies
+            </button>
+          </div>
+          
+          {activeTab === 'studies' ? (
+            <Studies query={query} />
+          ) : (
+            <SavedStudies />
+          )}
         </section>
 
-        <div className="resizer" aria-label="Resize middle/right" onMouseDown={(e) => startDrag(1, e)} />
+        <div className="resizer" aria-label="Resize middle/right" onMouseDown={(e) => startDrag(1, e)}>
+          <div className="resizer__handle" />
+        </div>
 
-        <section className="card" style={{ flexBasis: `${sizes[2]}%` }}>
+        <section className="card card--morandi" style={{ flexBasis: `${sizes[2]}%` }}>
+          <div className="card__header">
+            <span className="card__icon">🧠</span>
+            <div className="card__title">Brain Viewer</div>
+          </div>
           <NiiViewer query={query} />
         </section>
       </main>
+
+      <footer className="app__footer">
+        <p>Powered by Neurosynth Database · National Taiwan University</p>
+      </footer>
     </div>
   )
 }
