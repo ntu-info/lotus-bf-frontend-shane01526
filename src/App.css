@@ -31,12 +31,12 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* App Layout - Full width, centered content */
+/* App Layout - Near full width with minimal padding */
 .app--morandi {
   max-width: 100%;
   width: 100%;
   margin: 0 auto;
-  padding: 20px 32px;
+  padding: 20px 40px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -187,7 +187,7 @@ body {
   font-weight: 500;
 }
 
-/* CRITICAL FIX: Two Layer Grid with Fixed 500px Upper Row - Full Width */
+/* Two Layer Grid - Full width with minimal margins */
 .app__two-layer-grid {
   display: flex;
   flex-direction: column;
@@ -195,11 +195,11 @@ body {
   flex: 1;
   width: 100%;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0;
   min-height: 0;
 }
 
-/* Upper Row: FIXED 500px height - NEVER expands */
+/* Upper Row: FIXED 500px height */
 .app__upper-row {
   display: grid;
   grid-template-columns: 1fr 2fr;
@@ -210,7 +210,7 @@ body {
   overflow: hidden;
 }
 
-/* Terms Section: Must be exactly 500px and scrollable inside */
+/* Terms Section: 500px and scrollable */
 .app__terms-section {
   height: 500px;
   display: flex;
@@ -218,7 +218,7 @@ body {
   overflow: hidden;
 }
 
-/* Query Section: Must be exactly 500px with internal scrolling */
+/* Query Section: 500px with internal scrolling */
 .app__query-section {
   height: 500px;
   display: flex;
@@ -226,7 +226,7 @@ body {
   overflow: hidden;
 }
 
-/* Brain Section: Takes all remaining space below */
+/* Brain Section: Takes remaining space */
 .app__brain-section {
   width: 100%;
   flex: 1;
@@ -401,7 +401,7 @@ textarea:focus {
   font-size: 16px;
 }
 
-/* Query Builder */
+/* Query Builder - Removed tip section for more space */
 .qb {
   display: flex;
   flex-direction: column;
@@ -475,7 +475,7 @@ textarea:focus {
   color: white;
 }
 
-/* Terms Component - MUST scroll within 500px container */
+/* Terms Component - Scrollable within container */
 .terms {
   display: flex;
   flex-direction: column;
@@ -578,7 +578,7 @@ textarea:focus {
   color: var(--morandi-text);
 }
 
-/* Studies & Saved Studies - MUST scroll within 500px container */
+/* Studies & Saved Studies - Scrollable within container */
 .studies-container,
 .saved-studies {
   display: flex;
@@ -590,7 +590,7 @@ textarea:focus {
   overflow-x: hidden;
 }
 
-/* Ensure query section content has proper flex layout */
+/* Ensure query section has proper flex layout */
 .app__query-section > .card--stack {
   display: flex;
   flex-direction: column;
