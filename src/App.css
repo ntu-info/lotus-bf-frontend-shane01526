@@ -31,14 +31,18 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* App Layout */
+/* App Layout - Vertical */
 .app--morandi {
-  max-width: none;
-  margin: 0;
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 20px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.app--vertical {
+  max-width: 1400px;
 }
 
 .app__header { 
@@ -180,10 +184,16 @@ body {
   font-weight: 500;
 }
 
-.app__grid { 
-  display: flex; 
-  gap: 16px; 
+/* Vertical Grid Layout */
+.app__vertical-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   flex: 1;
+}
+
+.app__vertical-grid > .card {
+  width: 100%;
 }
 
 .app__footer {
@@ -204,7 +214,6 @@ body {
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
-  overflow: auto;
 }
 
 .card__header {
@@ -229,31 +238,6 @@ body {
   height: 1px; 
   background: var(--morandi-border); 
   margin: 20px 0; 
-}
-
-/* Resizer */
-.resizer { 
-  width: 16px; 
-  cursor: col-resize; 
-  position: relative; 
-  user-select: none; 
-  touch-action: none; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.resizer__handle {
-  width: 3px;
-  height: 48px;
-  background: var(--morandi-border);
-  border-radius: 3px;
-  transition: all 0.2s ease;
-}
-
-.resizer:hover .resizer__handle { 
-  background: var(--morandi-primary);
-  height: 64px;
 }
 
 /* Buttons */
@@ -462,7 +446,7 @@ textarea:focus {
 }
 
 .terms__list {
-  max-height: 500px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
@@ -470,9 +454,9 @@ textarea:focus {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
 }
 
 .terms__li {
@@ -490,18 +474,19 @@ textarea:focus {
   font-size: 13px;
   transition: all 0.2s ease;
   cursor: pointer;
+  text-align: center;
 }
 
 .terms__name:hover {
   background: var(--morandi-primary);
   color: white;
   border-color: var(--morandi-primary);
-  transform: translateX(4px);
+  transform: translateY(-2px);
 }
 
 .terms__skeleton {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 8px;
 }
 
@@ -523,6 +508,7 @@ textarea:focus {
   text-align: center;
   color: var(--morandi-text-muted);
   font-size: 13px;
+  grid-column: 1 / -1;
 }
 
 /* Alert */
@@ -548,9 +534,14 @@ textarea:focus {
 /* Responsive */
 @media (max-width: 1023px) {
   .app--morandi { padding: 12px; }
-  .app__grid { flex-direction: column; }
-  .resizer { display: none; }
-  .card--morandi { flex-basis: auto !important; }
+  
+  .terms__ul {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .terms__list {
+    max-height: 300px;
+  }
 }
 
 /* Brain Viewer Expanded Mode */
@@ -615,11 +606,6 @@ textarea:focus {
   box-shadow: 0 4px 12px rgba(184, 155, 155, 0.4);
 }
 
-.brain-viewer-compact {
-  height: 100%;
-  overflow: auto;
-}
-
 .brain-viewer-toggle {
   margin-top: 12px;
   width: 100%;
@@ -641,11 +627,6 @@ textarea:focus {
 .brain-viewer-toggle:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(139, 157, 158, 0.3);
-}
-
-.app__grid--compressed {
-  max-height: 40vh;
-  overflow-y: auto;
 }
 
 /* Saved Studies Badge */
