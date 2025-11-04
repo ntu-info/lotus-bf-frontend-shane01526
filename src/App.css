@@ -33,8 +33,8 @@ body {
 
 /* App Layout - Centered with controlled width */
 .app--morandi {
-  max-width: 1800px; /* Maximum width for centering */
-  margin: 0 auto; /* Center the content */
+  max-width: 1800px;
+  margin: 0 auto;
   padding: 20px 32px;
   min-height: 100vh;
   display: flex;
@@ -47,7 +47,8 @@ body {
 }
 
 .app__header { 
-  margin-bottom: 24px; 
+  margin-bottom: 24px;
+  flex-shrink: 0;
 }
 
 .app__header-top {
@@ -185,50 +186,53 @@ body {
   font-weight: 500;
 }
 
-/* Two Layer Grid Layout - Dynamic centered layout with no overlap */
+/* CRITICAL FIX: Two Layer Grid with Fixed 500px Upper Row */
 .app__two-layer-grid {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   flex: 1;
   width: 100%;
-  max-width: 1800px; /* Constrain width for better centering */
-  margin: 0 auto; /* Center the grid */
+  max-width: 1800px;
+  margin: 0 auto;
+  min-height: 0; /* Important for flex containers */
 }
 
-/* Upper Row: Terms (1/3) + Query/Studies (2/3) - Controlled height */
+/* Upper Row: FIXED 500px height - NEVER expands */
 .app__upper-row {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 20px;
-  align-items: stretch;
   width: 100%;
-  height: auto; /* Auto height based on content */
-  max-height: 40vh; /* Limit to 40% of viewport to prevent overlap */
-  min-height: 300px; /* Minimum height for usability */
+  height: 500px; /* FIXED HEIGHT */
+  flex-shrink: 0; /* Never shrink */
+  overflow: hidden; /* Prevent any overflow */
 }
 
+/* Terms Section: Must be exactly 500px and scrollable inside */
 .app__terms-section {
-  height: 100%;
+  height: 500px; /* Match parent */
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
+/* Query Section: Must be exactly 500px with internal scrolling */
 .app__query-section {
-  height: 100%;
+  height: 500px; /* Match parent */
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* Lower Row: Brain Viewer - Auto positioned below upper row */
+/* Brain Section: Takes all remaining space below */
 .app__brain-section {
   width: 100%;
-  flex: 1; /* Take remaining space */
-  min-height: 400px; /* Ensure brain viewer has good size */
+  flex: 1; /* Take remaining vertical space */
+  min-height: 400px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .app__footer {
@@ -238,6 +242,7 @@ body {
   color: var(--morandi-text-muted);
   font-size: 12px;
   border-top: 1px solid var(--morandi-border);
+  flex-shrink: 0;
 }
 
 .app__footer p { margin: 0; }
@@ -251,13 +256,14 @@ body {
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-  height: 100%; /* Fill parent height */
+  height: 100%;
+  overflow: hidden; /* Prevent card from expanding */
 }
 
 .card--stack {
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Important for nested scrolling */
+  overflow: hidden;
   height: 100%;
 }
 
@@ -266,7 +272,7 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 16px;
-  flex-shrink: 0; /* Don't shrink header */
+  flex-shrink: 0;
 }
 
 .card__icon {
@@ -317,7 +323,7 @@ button:disabled, .btn:disabled {
   transform: none;
 }
 
-/* Inputs - Morandi light background with dark text */
+/* Inputs */
 input[type="text"],
 input[type="search"],
 input[type="email"],
@@ -336,7 +342,6 @@ textarea {
   background: #faf9f7;
 }
 
-/* Special styling for Terms search and Query Builder */
 .terms__controls input,
 .qb__input {
   background: #faf9f7;
@@ -357,7 +362,7 @@ textarea:focus {
   gap: 8px;
   margin-bottom: 16px;
   border-bottom: 2px solid var(--morandi-border);
-  flex-shrink: 0; /* Don't shrink tabs */
+  flex-shrink: 0;
 }
 
 .studies-tab {
@@ -400,7 +405,7 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  flex-shrink: 0; /* Don't shrink query builder */
+  flex-shrink: 0;
 }
 
 .qb__input-wrapper {
@@ -482,26 +487,28 @@ textarea:focus {
   color: var(--morandi-text);
 }
 
-/* Terms Component */
+/* Terms Component - MUST scroll within 500px container */
 .terms {
   display: flex;
   flex-direction: column;
   gap: 12px;
   flex: 1;
-  height: 100%; /* Fill parent height */
-  overflow: hidden; /* Contain overflow */
+  height: 100%;
+  overflow: hidden;
+  min-height: 0; /* Critical for nested flex scrolling */
 }
 
 .terms__controls {
   display: flex;
   gap: 8px;
-  flex-shrink: 0; /* Don't shrink controls */
+  flex-shrink: 0;
 }
 
 .terms__list {
   flex: 1;
-  overflow-y: auto; /* Enable scrolling */
-  min-height: 0; /* Important for flexbox scrolling */
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
 }
 
 .terms__ul {
@@ -583,56 +590,60 @@ textarea:focus {
   color: var(--morandi-text);
 }
 
-/* Responsive */
-@media (max-width: 1023px) {
-  .app--morandi { 
-    padding: 12px 20px;
-  }
-  
-  .app__two-layer-grid {
-    max-width: 100%;
-  }
-  
-  .app__upper-row {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    max-height: none; /* Remove height restriction on mobile */
-    height: auto;
-  }
-  
-  .app__terms-section {
-    min-height: 250px;
-    max-height: 350px;
-  }
-
-  .app__query-section {
-    min-height: 300px;
-    max-height: 400px;
-  }
-
-  .app__brain-section {
-    min-height: 300px;
-  }
+/* Studies & Saved Studies - MUST scroll within 500px container */
+.studies-container,
+.saved-studies {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-@media (max-width: 768px) {
-  .app--morandi { 
-    padding: 8px 16px;
-  }
-  
-  .app__upper-row {
-    gap: 12px;
-  }
-  
-  .app__terms-section {
-    min-height: 200px;
-    max-height: 300px;
-  }
+/* Ensure query section content has proper flex layout */
+.app__query-section > .card--stack {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
 
-  .app__query-section {
-    min-height: 250px;
-    max-height: 350px;
-  }
+/* Studies table wrapper */
+.studies-table-wrapper,
+.saved-studies-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--morandi-border);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* Custom scrollbar */
+.terms__list::-webkit-scrollbar,
+.studies-container::-webkit-scrollbar,
+.saved-studies::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terms__list::-webkit-scrollbar-track,
+.studies-container::-webkit-scrollbar-track,
+.saved-studies::-webkit-scrollbar-track {
+  background: rgba(139, 157, 158, 0.05);
+  border-radius: 4px;
+}
+
+.terms__list::-webkit-scrollbar-thumb,
+.studies-container::-webkit-scrollbar-thumb,
+.saved-studies::-webkit-scrollbar-thumb {
+  background: var(--morandi-primary);
+  border-radius: 4px;
+}
+
+.terms__list::-webkit-scrollbar-thumb:hover,
+.studies-container::-webkit-scrollbar-thumb:hover,
+.saved-studies::-webkit-scrollbar-thumb:hover {
+  background: var(--morandi-primary-hover);
 }
 
 /* Brain Viewer Expanded Mode */
@@ -645,7 +656,7 @@ textarea:focus {
   border-top: 2px solid var(--morandi-primary);
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
   z-index: 100;
-  height: 75vh; /* Increased for better viewing */
+  height: 75vh;
   overflow: auto;
   animation: slideUpExpand 0.4s ease;
   padding: 24px 32px;
@@ -735,79 +746,39 @@ textarea:focus {
   font-weight: 600;
 }
 
-/* Studies Container - Enable scrolling with proper flex */
-.studies-container,
-.saved-studies {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  flex: 1;
-  min-height: 0; /* Important for flexbox scrolling */
-  overflow-y: auto; /* Enable vertical scrolling */
-  overflow-x: hidden; /* Hide horizontal overflow */
+/* Responsive - Stack on mobile */
+@media (max-width: 1023px) {
+  .app--morandi { 
+    padding: 12px 20px;
+  }
+  
+  .app__two-layer-grid {
+    max-width: 100%;
+  }
+  
+  .app__upper-row {
+    grid-template-columns: 1fr;
+    height: auto; /* Allow stacking on mobile */
+    max-height: none;
+  }
+  
+  .app__terms-section,
+  .app__query-section {
+    height: 350px; /* Fixed height for each on mobile */
+  }
+
+  .app__brain-section {
+    min-height: 300px;
+  }
 }
 
-/* Query section content wrapper for proper flex layout */
-.app__query-section > .card--stack {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-/* Divider should not take flex space */
-.card--stack > .divider { 
-  height: 1px; 
-  background: var(--morandi-border); 
-  margin: 20px 0;
-  flex-shrink: 0;
-}
-
-/* Ensure brain section card fills available space */
-.app__brain-section > .card--morandi {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Studies wrapper to enable scrolling */
-.studies-tabs + .studies-container,
-.studies-tabs + .saved-studies {
-  flex: 1;
-  min-height: 0;
-}
-
-/* Studies table wrapper should not have its own scroll */
-.studies-table-wrapper,
-.saved-studies-table-wrapper {
-  overflow-x: auto;
-  border: 1px solid var(--morandi-border);
-  border-radius: 10px;
-  flex-shrink: 0; /* Don't shrink the table */
-}
-
-/* Custom scrollbar styling for better UX */
-.terms__list::-webkit-scrollbar,
-.studies-container::-webkit-scrollbar,
-.saved-studies::-webkit-scrollbar {
-  width: 8px;
-}
-
-.terms__list::-webkit-scrollbar-track,
-.studies-container::-webkit-scrollbar-track,
-.saved-studies::-webkit-scrollbar-track {
-  background: rgba(139, 157, 158, 0.05);
-  border-radius: 4px;
-}
-
-.terms__list::-webkit-scrollbar-thumb,
-.studies-container::-webkit-scrollbar-thumb,
-.saved-studies::-webkit-scrollbar-thumb {
-  background: var(--morandi-primary);
-  border-radius: 4px;
-}
-
-.terms__list::-webkit-scrollbar-thumb:hover,
-.studies-container::-webkit-scrollbar-thumb:hover,
-.saved-studies::-webkit-scrollbar-thumb:hover {
-  background: var(--morandi-primary-hover);
+@media (max-width: 768px) {
+  .app--morandi { 
+    padding: 8px 16px;
+  }
+  
+  .app__terms-section,
+  .app__query-section {
+    height: 300px;
+  }
 }
