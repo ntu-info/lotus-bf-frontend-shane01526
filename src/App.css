@@ -218,12 +218,36 @@ body {
   overflow: hidden;
 }
 
-/* Query Section: 500px with internal scrolling */
+/* Query Section: 500px with internal scrolling, fixed structure */
 .app__query-section {
   height: 500px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* Ensure the card stack layout is fixed */
+.app__query-section > .card--stack {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app__query-section .card__header {
+  flex-shrink: 0;
+}
+
+.app__query-section .qb {
+  flex-shrink: 0;
+}
+
+.app__query-section .divider {
+  flex-shrink: 0;
+}
+
+.app__query-section .studies-tabs {
+  flex-shrink: 0;
 }
 
 /* Brain Section: Takes remaining space */
@@ -580,7 +604,7 @@ textarea:focus {
   color: var(--morandi-text);
 }
 
-/* Studies & Saved Studies - Scrollable within container */
+/* Studies & Saved Studies - Scrollable within fixed remaining space */
 .studies-container,
 .saved-studies {
   display: flex;
@@ -590,6 +614,13 @@ textarea:focus {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+.app__query-section .studies-container,
+.app__query-section .saved-studies {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* Ensure query section has proper flex layout */
