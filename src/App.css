@@ -401,12 +401,14 @@ textarea:focus {
   font-size: 16px;
 }
 
-/* Query Builder - Removed tip section for more space */
+/* Query Builder - Fixed height, no flex growing */
 .qb {
   display: flex;
   flex-direction: column;
   gap: 14px;
   flex-shrink: 0;
+  height: auto;
+  min-height: fit-content;
 }
 
 .qb__input-wrapper {
