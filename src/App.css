@@ -31,9 +31,10 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* App Layout - Centered with controlled width */
+/* App Layout - Full width, centered content */
 .app--morandi {
-  max-width: 1800px;
+  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
   padding: 20px 32px;
   min-height: 100vh;
@@ -186,16 +187,16 @@ body {
   font-weight: 500;
 }
 
-/* CRITICAL FIX: Two Layer Grid with Fixed 500px Upper Row */
+/* CRITICAL FIX: Two Layer Grid with Fixed 500px Upper Row - Full Width */
 .app__two-layer-grid {
   display: flex;
   flex-direction: column;
   gap: 24px;
   flex: 1;
   width: 100%;
-  max-width: 1800px;
+  max-width: 100%;
   margin: 0 auto;
-  min-height: 0; /* Important for flex containers */
+  min-height: 0;
 }
 
 /* Upper Row: FIXED 500px height - NEVER expands */
@@ -204,14 +205,14 @@ body {
   grid-template-columns: 1fr 2fr;
   gap: 20px;
   width: 100%;
-  height: 500px; /* FIXED HEIGHT */
-  flex-shrink: 0; /* Never shrink */
-  overflow: hidden; /* Prevent any overflow */
+  height: 500px;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 /* Terms Section: Must be exactly 500px and scrollable inside */
 .app__terms-section {
-  height: 500px; /* Match parent */
+  height: 500px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -219,7 +220,7 @@ body {
 
 /* Query Section: Must be exactly 500px with internal scrolling */
 .app__query-section {
-  height: 500px; /* Match parent */
+  height: 500px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -228,7 +229,7 @@ body {
 /* Brain Section: Takes all remaining space below */
 .app__brain-section {
   width: 100%;
-  flex: 1; /* Take remaining vertical space */
+  flex: 1;
   min-height: 400px;
   display: flex;
   flex-direction: column;
@@ -257,7 +258,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden; /* Prevent card from expanding */
+  overflow: hidden;
 }
 
 .card--stack {
@@ -474,19 +475,6 @@ textarea:focus {
   color: white;
 }
 
-.qb__tip {
-  padding: 12px;
-  background: var(--morandi-primary-light);
-  border-radius: var(--radius-xs);
-  font-size: 12px;
-  color: var(--morandi-text-muted);
-  border-left: 3px solid var(--morandi-primary);
-}
-
-.qb__tip strong {
-  color: var(--morandi-text);
-}
-
 /* Terms Component - MUST scroll within 500px container */
 .terms {
   display: flex;
@@ -495,7 +483,7 @@ textarea:focus {
   flex: 1;
   height: 100%;
   overflow: hidden;
-  min-height: 0; /* Critical for nested flex scrolling */
+  min-height: 0;
 }
 
 .terms__controls {
@@ -758,13 +746,13 @@ textarea:focus {
   
   .app__upper-row {
     grid-template-columns: 1fr;
-    height: auto; /* Allow stacking on mobile */
+    height: auto;
     max-height: none;
   }
   
   .app__terms-section,
   .app__query-section {
-    height: 350px; /* Fixed height for each on mobile */
+    height: 350px;
   }
 
   .app__brain-section {
