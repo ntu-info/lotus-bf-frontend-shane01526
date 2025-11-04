@@ -31,12 +31,11 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* App Layout - Full width with minimal side padding from start */
+/* App Layout - Centered with controlled width */
 .app--morandi {
-  max-width: none;
-  width: 100%;
+  max-width: 1800px;
   margin: 0 auto;
-  padding: 20px 40px;
+  padding: 20px 32px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -187,49 +186,49 @@ body {
   font-weight: 500;
 }
 
-/* Two Layer Grid - Full width, fixed size from start */
+/* CRITICAL FIX: Two Layer Grid with Fixed 500px Upper Row */
 .app__two-layer-grid {
   display: flex;
   flex-direction: column;
   gap: 24px;
   flex: 1;
   width: 100%;
-  max-width: none;
-  margin: 0;
-  min-height: 0;
+  max-width: 1800px;
+  margin: 0 auto;
+  min-height: 0; /* Important for flex containers */
 }
 
-/* Upper Row: FIXED 500px height */
+/* Upper Row: FIXED 500px height - NEVER expands */
 .app__upper-row {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 20px;
   width: 100%;
-  height: 500px;
-  flex-shrink: 0;
-  overflow: hidden;
+  height: 500px; /* FIXED HEIGHT */
+  flex-shrink: 0; /* Never shrink */
+  overflow: hidden; /* Prevent any overflow */
 }
 
-/* Terms Section: 500px and scrollable */
+/* Terms Section: Must be exactly 500px and scrollable inside */
 .app__terms-section {
-  height: 500px;
+  height: 500px; /* Match parent */
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* Query Section: 500px with internal scrolling */
+/* Query Section: Must be exactly 500px with internal scrolling */
 .app__query-section {
-  height: 500px;
+  height: 500px; /* Match parent */
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* Brain Section: Takes remaining space */
+/* Brain Section: Takes all remaining space below */
 .app__brain-section {
   width: 100%;
-  flex: 1;
+  flex: 1; /* Take remaining vertical space */
   min-height: 400px;
   display: flex;
   flex-direction: column;
@@ -258,7 +257,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden;
+  overflow: hidden; /* Prevent card from expanding */
 }
 
 .card--stack {
@@ -401,7 +400,7 @@ textarea:focus {
   font-size: 16px;
 }
 
-/* Query Builder - Removed tip section for more space */
+/* Query Builder */
 .qb {
   display: flex;
   flex-direction: column;
@@ -475,7 +474,20 @@ textarea:focus {
   color: white;
 }
 
-/* Terms Component - Scrollable within container */
+.qb__tip {
+  padding: 12px;
+  background: var(--morandi-primary-light);
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  color: var(--morandi-text-muted);
+  border-left: 3px solid var(--morandi-primary);
+}
+
+.qb__tip strong {
+  color: var(--morandi-text);
+}
+
+/* Terms Component - MUST scroll within 500px container */
 .terms {
   display: flex;
   flex-direction: column;
@@ -483,7 +495,7 @@ textarea:focus {
   flex: 1;
   height: 100%;
   overflow: hidden;
-  min-height: 0;
+  min-height: 0; /* Critical for nested flex scrolling */
 }
 
 .terms__controls {
@@ -578,7 +590,7 @@ textarea:focus {
   color: var(--morandi-text);
 }
 
-/* Studies & Saved Studies - Scrollable within container */
+/* Studies & Saved Studies - MUST scroll within 500px container */
 .studies-container,
 .saved-studies {
   display: flex;
@@ -590,7 +602,7 @@ textarea:focus {
   overflow-x: hidden;
 }
 
-/* Ensure query section has proper flex layout */
+/* Ensure query section content has proper flex layout */
 .app__query-section > .card--stack {
   display: flex;
   flex-direction: column;
@@ -746,13 +758,13 @@ textarea:focus {
   
   .app__upper-row {
     grid-template-columns: 1fr;
-    height: auto;
+    height: auto; /* Allow stacking on mobile */
     max-height: none;
   }
   
   .app__terms-section,
   .app__query-section {
-    height: 350px;
+    height: 350px; /* Fixed height for each on mobile */
   }
 
   .app__brain-section {
