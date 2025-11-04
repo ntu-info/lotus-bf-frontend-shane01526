@@ -1,4 +1,4 @@
-// Enhanced NiiViewer with clickable zoom feature
+// Enhanced NiiViewer with horizontal parameter layout
 const X_RIGHT_ON_SCREEN_RIGHT = true;
 
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -389,88 +389,219 @@ export function NiiViewer({ query, expanded = false }) {
   const nsInputCls = 'w-16 rounded border border-gray-400 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400'
   const nsLabelCls = 'mr-1 text-sm'
 
-  // Compact mode: smaller canvas size
-  // Expanded mode: larger canvas for better viewing
   const canvasHeight = expanded ? '400px' : '220px'
 
   return (
     <div className='flex flex-col gap-3'>
-      {!expanded && (
-        <div className='flex items-center justify-between'>
-          <div className='card__title'>NIfTI Viewer</div>
-          <div className='flex items-center gap-2 text-sm text-gray-500'>
-            {query && <a href={mapUrl} className='rounded-lg border px-2 py-1 text-xs hover:bg-gray-50'>Download map</a>}
-          </div>
-        </div>
-      )}
-
-      <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
-        <label className='flex items-center gap-2'>
-          <span>Threshold mode</span>
-          <select value={thrMode} onChange={e=>setThrMode(e.target.value)} className='rounded-lg border px-2 py-1'>
+      {/* Horizontal Parameter Controls */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: expanded ? 'repeat(auto-fit, minmax(200px, 1fr))' : 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: '12px',
+        padding: '16px',
+        background: 'white',
+        borderRadius: '12px',
+        border: '1px solid var(--morandi-border)'
+      }}>
+        {/* Threshold Mode */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--morandi-text)' }}>
+            Threshold Mode
+          </label>
+          <select 
+            value={thrMode} 
+            onChange={e=>setThrMode(e.target.value)} 
+            style={{ 
+              padding: '8px 10px',
+              borderRadius: '8px',
+              border: '1px solid var(--morandi-border)',
+              fontSize: '13px',
+              background: '#faf9f7'
+            }}
+          >
             <option value='value'>Value</option>
             <option value='pctl'>Percentile</option>
           </select>
-        </label>
-        <br />
+        </div>
+
+        {/* Threshold Value or Percentile */}
         {thrMode === 'value' ? (
-          <>
-            <label className='flex items-center gap-2'>
-              <span>Threshold</span>
-              <input type='number' step='0.01' value={thrValue} onChange={e=>setThrValue(Number(e.target.value))} className='w-28 rounded-lg border px-2 py-1' />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--morandi-text)' }}>
+              Threshold
             </label>
-            <br />
-          </>
+            <input 
+              type='number' 
+              step='0.01' 
+              value={thrValue} 
+              onChange={e=>setThrValue(Number(e.target.value))}
+              style={{ 
+                padding: '8px 10px',
+                borderRadius: '8px',
+                border: '1px solid var(--morandi-border)',
+                fontSize: '13px',
+                background: '#faf9f7'
+              }}
+            />
+          </div>
         ) : (
-          <>
-            <label className='flex items-center gap-2'>
-              <span>Percentile</span>
-              <input type='number' min={50} max={99.9} step={0.5} value={pctl} onChange={e=>setPctl(Number(e.target.value)||95)} className='w-24 rounded-lg border px-2 py-1' />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--morandi-text)' }}>
+              Percentile
             </label>
-            <br />
-          </>
+            <input 
+              type='number' 
+              min={50} 
+              max={99.9} 
+              step={0.5} 
+              value={pctl} 
+              onChange={e=>setPctl(Number(e.target.value)||95)}
+              style={{ 
+                padding: '8px 10px',
+                borderRadius: '8px',
+                border: '1px solid var(--morandi-border)',
+                fontSize: '13px',
+                background: '#faf9f7'
+              }}
+            />
+          </div>
         )}
 
-        <div className='mt-1 flex items-center gap-4'>
-          <label className='flex items-center'>
-            <span className={nsLabelCls}>X (mm):</span>
+        {/* FWHM */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--morandi-text)' }}>
+            Gaussian FWHM
+          </label>
+          <input 
+            type='number' 
+            step='0.5' 
+            value={fwhm} 
+            onChange={e=>setFwhm(Number(e.target.value)||0)}
+            style={{ 
+              padding: '8px 10px',
+              borderRadius: '8px',
+              border: '1px solid var(--morandi-border)',
+              fontSize: '13px',
+              background: '#faf9f7'
+            }}
+          />
+        </div>
+
+        {/* Overlay Alpha */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--morandi-text)' }}>
+            Overlay Alpha: {overlayAlpha.toFixed(2)}
+          </label>
+          <input 
+            type='range' 
+            min={0} 
+            max={1} 
+            step={0.05} 
+            value={overlayAlpha} 
+            onChange={e=>setOverlayAlpha(Number(e.target.value))}
+            style={{ 
+              width: '100%',
+              accentColor: 'var(--morandi-primary)'
+            }}
+          />
+        </div>
+
+        {/* MNI Coordinates */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--morandi-text)' }}>
+            MNI Coordinates
+          </label>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <input
-              type='text' inputMode='decimal' pattern='-?[0-9]*([.][0-9]+)?'
-              className={nsInputCls}
+              type='text' 
+              inputMode='decimal' 
+              placeholder='X'
               value={cx}
               onChange={e=>setCx(e.target.value)}
               onBlur={()=>commitCoord('x')}
               onKeyDown={e=>{ if(e.key==='Enter'){ commitCoord('x') } }}
-              aria-label='X coordinate'
+              style={{ 
+                flex: 1,
+                padding: '6px 8px',
+                borderRadius: '6px',
+                border: '1px solid var(--morandi-border)',
+                fontSize: '12px',
+                background: '#faf9f7',
+                textAlign: 'center'
+              }}
             />
-          </label>
-          <label className='flex items-center'>
-            <span className={nsLabelCls}>Y (mm):</span>
             <input
-              type='text' inputMode='decimal' pattern='-?[0-9]*([.][0-9]+)?'
-              className={nsInputCls}
+              type='text' 
+              inputMode='decimal' 
+              placeholder='Y'
               value={cy}
               onChange={e=>setCy(e.target.value)}
               onBlur={()=>commitCoord('y')}
               onKeyDown={e=>{ if(e.key==='Enter'){ commitCoord('y') } }}
-              aria-label='Y coordinate'
+              style={{ 
+                flex: 1,
+                padding: '6px 8px',
+                borderRadius: '6px',
+                border: '1px solid var(--morandi-border)',
+                fontSize: '12px',
+                background: '#faf9f7',
+                textAlign: 'center'
+              }}
             />
-          </label>
-          <label className='flex items-center'>
-            <span className={nsLabelCls}>Z (mm):</span>
             <input
-              type='text' inputMode='decimal' pattern='-?[0-9]*([.][0-9]+)?'
-              className={nsInputCls}
+              type='text' 
+              inputMode='decimal' 
+              placeholder='Z'
               value={cz}
               onChange={e=>setCz(e.target.value)}
               onBlur={()=>commitCoord('z')}
               onKeyDown={e=>{ if(e.key==='Enter'){ commitCoord('z') } }}
-              aria-label='Z coordinate'
+              style={{ 
+                flex: 1,
+                padding: '6px 8px',
+                borderRadius: '6px',
+                border: '1px solid var(--morandi-border)',
+                fontSize: '12px',
+                background: '#faf9f7',
+                textAlign: 'center'
+              }}
             />
-          </label>
+          </div>
         </div>
+
+        {/* Download Button */}
+        {query && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', justifyContent: 'flex-end' }}>
+            <a 
+              href={mapUrl} 
+              download
+              style={{
+                padding: '8px 12px',
+                background: 'var(--morandi-primary)',
+                color: 'white',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                textAlign: 'center',
+                textDecoration: 'none',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'var(--morandi-primary-hover)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'var(--morandi-primary)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              📥 Download Map
+            </a>
+          </div>
+        )}
       </div>
 
+      {/* Loading & Error States */}
       {(loadingBG || loadingMap) && (
         <div className='grid gap-3 lg:grid-cols-3'>
           {Array.from({ length: 3 }).map((_, i) => (
@@ -486,67 +617,40 @@ export function NiiViewer({ query, expanded = false }) {
         </div>
       )}
 
+      {/* Brain Slices */}
       {!!nx && (
         <div 
-          className='grid gap-3' 
           style={{ 
             display: 'grid', 
             gridTemplateColumns: expanded ? 'repeat(3, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))', 
-            gap: expanded ? 20 : 12 
+            gap: expanded ? '20px' : '12px'
           }}
         >
           {sliceConfigs.map(({ key, name, axisLabel, canvasRef }) => (
-            <div key={key} className='flex flex-col gap-2'>
-              <div className='text-xs text-gray-600 flex justify-between items-center'>
-                <span style={{ fontWeight: expanded ? '600' : '400', fontSize: expanded ? '14px' : '12px' }}>
-                  {name} ({axisLabel})
-                </span>
+            <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ 
+                fontSize: expanded ? '14px' : '12px',
+                fontWeight: expanded ? '600' : '400',
+                color: '#666',
+                textAlign: 'center'
+              }}>
+                {name} ({axisLabel})
               </div>
               <canvas 
                 ref={canvasRef} 
-                className='w-full rounded-xl border cursor-crosshair' 
                 onClick={(e)=>onCanvasClick(e, key)} 
                 style={{ 
+                  width: '100%',
                   height: canvasHeight, 
                   imageRendering: 'pixelated',
+                  borderRadius: '12px',
+                  border: '1px solid var(--morandi-border)',
+                  cursor: 'crosshair',
                   boxShadow: expanded ? '0 4px 12px rgba(0,0,0,0.1)' : 'none'
                 }}
               />
             </div>
           ))}
-        </div>
-      )}
-
-      {!!nx && !expanded && (
-        <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
-          <label className='flex flex-col'>Gaussian FWHM:
-            <input type='number' step='0.5' value={fwhm} onChange={e=>setFwhm(Number(e.target.value)||0)} className='w-28 rounded-lg border px-2 py-1'/>
-          </label>
-        </div>
-      )}
-
-      {expanded && (
-        <div className='grid grid-cols-2 gap-4'>
-          <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
-            <label className='flex flex-col'>Gaussian FWHM:
-              <input type='number' step='0.5' value={fwhm} onChange={e=>setFwhm(Number(e.target.value)||0)} className='w-28 rounded-lg border px-2 py-1'/>
-            </label>
-          </div>
-          <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
-            <label className='flex items-center gap-2'>
-              <span>Overlay alpha: {overlayAlpha.toFixed(2)}</span>
-              <input type='range' min={0} max={1} step={0.05} value={overlayAlpha} onChange={e=>setOverlayAlpha(Number(e.target.value))} className='w-40' />
-            </label>
-          </div>
-        </div>
-      )}
-
-      {!expanded && (
-        <div className='rounded-xl border p-3 text-sm' style={{background: 'white'}}>
-          <label className='flex items-center gap-2'>
-            <span>Overlay alpha: {overlayAlpha.toFixed(2)}</span>
-            <input type='range' min={0} max={1} step={0.05} value={overlayAlpha} onChange={e=>setOverlayAlpha(Number(e.target.value))} className='w-40' />
-          </label>
         </div>
       )}
     </div>
