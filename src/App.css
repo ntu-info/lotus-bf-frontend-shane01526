@@ -31,9 +31,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* App Layout - Near Full Width with minimal side margins and centered */
+/* App Layout - Centered with controlled width */
 .app--morandi {
-  max-width: 1920px; /* Maximum width for very large screens */
+  max-width: 1800px; /* Maximum width for centering */
   margin: 0 auto; /* Center the content */
   padding: 20px 32px;
   min-height: 100vh;
