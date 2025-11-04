@@ -22,7 +22,7 @@ function AppContent() {
   }, [setQuery])
 
   return (
-    <div className="app app--morandi app--vertical">
+    <div className="app app--morandi app--two-layer">
       <header className="app__header">
         <div className="app__header-top">
           <div className="app__header-left">
@@ -62,60 +62,63 @@ function AppContent() {
         <div className="app__subtitle">Location-or-Term Unified Search for Brain Functions</div>
       </header>
 
-      <main className="app__vertical-grid">
-        {/* Section 1: Terms */}
-        <section className="card card--morandi">
-          <div className="card__header">
-            <span className="card__icon">🏷️</span>
-            <div className="card__title">Terms</div>
-          </div>
-          <Terms onPickTerm={handlePickTerm} />
-        </section>
+      <main className="app__two-layer-grid">
+        {/* Upper Layer: Terms (1/3) + Query/Studies (2/3) */}
+        <div className="app__upper-row">
+          {/* Left: Terms (1/3 width) */}
+          <section className="card card--morandi app__terms-section">
+            <div className="card__header">
+              <span className="card__icon">🏷️</span>
+              <div className="card__title">Terms</div>
+            </div>
+            <Terms onPickTerm={handlePickTerm} />
+          </section>
 
-        {/* Section 2: Query Builder + Studies */}
-        <section className="card card--morandi card--stack">
-          <div className="card__header">
-            <span className="card__icon">🔍</span>
-            <div className="card__title">Query Builder</div>
-          </div>
-          <QueryBuilder query={query} setQuery={setQuery} />
-          
-          <div className="divider" />
-          
-          <div className="studies-tabs">
-            <button 
-              className={`studies-tab ${activeTab === 'studies' ? 'studies-tab--active' : ''}`}
-              onClick={() => setActiveTab('studies')}
-            >
-              <span className="studies-tab__icon">📊</span>
-              Search Results
-            </button>
-            <button 
-              className={`studies-tab ${activeTab === 'saved' ? 'studies-tab--active' : ''}`}
-              onClick={() => {
-                if (!isAuthenticated) {
-                  setShowAuthModal(true)
-                  return
-                }
-                setActiveTab('saved')
-              }}
-            >
-              <span className="studies-tab__icon">⭐</span>
-              Saved Studies
-              {isAuthenticated && <span className="saved-badge">✓</span>}
-            </button>
-          </div>
-          
-          {activeTab === 'studies' ? (
-            <Studies query={query} />
-          ) : (
-            <SavedStudies />
-          )}
-        </section>
+          {/* Right: Query Builder + Studies (2/3 width) */}
+          <section className="card card--morandi card--stack app__query-section">
+            <div className="card__header">
+              <span className="card__icon">🔍</span>
+              <div className="card__title">Query Builder</div>
+            </div>
+            <QueryBuilder query={query} setQuery={setQuery} />
+            
+            <div className="divider" />
+            
+            <div className="studies-tabs">
+              <button 
+                className={`studies-tab ${activeTab === 'studies' ? 'studies-tab--active' : ''}`}
+                onClick={() => setActiveTab('studies')}
+              >
+                <span className="studies-tab__icon">📊</span>
+                Search Results
+              </button>
+              <button 
+                className={`studies-tab ${activeTab === 'saved' ? 'studies-tab--active' : ''}`}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    setShowAuthModal(true)
+                    return
+                  }
+                  setActiveTab('saved')
+                }}
+              >
+                <span className="studies-tab__icon">⭐</span>
+                Saved Studies
+                {isAuthenticated && <span className="saved-badge">✓</span>}
+              </button>
+            </div>
+            
+            {activeTab === 'studies' ? (
+              <Studies query={query} />
+            ) : (
+              <SavedStudies />
+            )}
+          </section>
+        </div>
 
-        {/* Section 3: Brain Viewer */}
+        {/* Lower Layer: Brain Viewer (full width) */}
         {!brainViewExpanded && (
-          <section className="card card--morandi">
+          <section className="card card--morandi app__brain-section">
             <div className="card__header">
               <span className="card__icon">🧠</span>
               <div className="card__title">Brain Viewer</div>
