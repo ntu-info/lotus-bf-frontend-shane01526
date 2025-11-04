@@ -218,37 +218,12 @@ body {
   overflow: hidden;
 }
 
-/* Query Section: 500px with internal scrolling, fixed structure */
+/* Query Section: 500px with internal scrolling */
 .app__query-section {
   height: 500px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-/* Ensure the card stack layout is fixed */
-.app__query-section > .card--stack {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.app__query-section .card__header {
-  flex-shrink: 0;
-}
-
-.app__query-section .qb {
-  flex-shrink: 0;
-  min-height: 120px;
-}
-
-.app__query-section .divider {
-  flex-shrink: 0;
-}
-
-.app__query-section .studies-tabs {
-  flex-shrink: 0;
 }
 
 /* Brain Section: Takes remaining space */
@@ -426,13 +401,12 @@ textarea:focus {
   font-size: 16px;
 }
 
-/* Query Builder - Fixed size, always visible */
+/* Query Builder - Removed tip section for more space */
 .qb {
   display: flex;
   flex-direction: column;
   gap: 14px;
   flex-shrink: 0;
-  min-height: 120px;
 }
 
 .qb__input-wrapper {
@@ -604,7 +578,7 @@ textarea:focus {
   color: var(--morandi-text);
 }
 
-/* Studies & Saved Studies - Scrollable within fixed remaining space */
+/* Studies & Saved Studies - Scrollable within container */
 .studies-container,
 .saved-studies {
   display: flex;
@@ -614,13 +588,6 @@ textarea:focus {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-.app__query-section .studies-container,
-.app__query-section .saved-studies {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
 }
 
 /* Ensure query section has proper flex layout */
