@@ -46,10 +46,6 @@ export function QueryBuilder({ query, setQuery }) {
           Reset
         </button>
       </div>
-
-      <div className="qb__tip">
-        <strong>💡 Tip:</strong> You can include MNI coordinates like [x,y,z] directly in your query (e.g., "emotion NOT [-22,-4,18]")
-      </div>
     </div>
   );
 }
