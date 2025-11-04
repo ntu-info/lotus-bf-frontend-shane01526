@@ -240,6 +240,7 @@ body {
 
 .app__query-section .qb {
   flex-shrink: 0;
+  min-height: 120px;
 }
 
 .app__query-section .divider {
@@ -425,14 +426,13 @@ textarea:focus {
   font-size: 16px;
 }
 
-/* Query Builder - Fixed height, no flex growing */
+/* Query Builder - Fixed size, always visible */
 .qb {
   display: flex;
   flex-direction: column;
   gap: 14px;
   flex-shrink: 0;
-  height: auto;
-  min-height: fit-content;
+  min-height: 120px;
 }
 
 .qb__input-wrapper {
